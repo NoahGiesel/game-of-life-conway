@@ -2,9 +2,9 @@ import React from 'react';
 
 
 interface Props {
-    resetField : () => void
-    updatePlaying : (x:boolean) => void
-    isPlaying : Boolean
+    resetField : () => void;
+    updatePlaying : (x:boolean) => void;
+    isPlaying : Boolean;
 }
 
 const UserInput: React.FC<Props> = (props) => {

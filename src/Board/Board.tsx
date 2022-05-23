@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Box from "./Box"
+import Cell from "./Cell"
 
 import produce from "immer"
 
@@ -8,128 +8,106 @@ interface Props {
     boardUpdateSpeed: number;
     nRow: number;
     resetField: Boolean;
-    playGeneration: Boolean;
+    playSimulation: Boolean;
 }
 
-const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playGeneration, boardUpdateSpeed }) => {
+const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playSimulation, boardUpdateSpeed }) => {
 
-    
-    const generateField : () => number[][] = () => {
+    const generateEmptyField: () => number[][] = () => {
         const row = [];
         for (let i = 0; i < nRow; i++) {
             row.push(Array.from(Array(nColumn), () => 0))
         }
         return row;
     }
-    const [matrix, setMatrix] = useState<number[][]>(generateField);
+
+    const [matrix, setMatrix] = useState<number[][]>(generateEmptyField);
+    const [simulationCount, setSimulationCount] = useState<number>(0);
+
+
     const runningRef = useRef<Boolean>();
     const updateSpeedRef = useRef<number>();
-
-    runningRef.current = playGeneration
+    runningRef.current = playSimulation
     updateSpeedRef.current = boardUpdateSpeed
+
+    // Reset field 
     useEffect(() => {
-        console.log("RESETTING FIELD") 
-        setMatrix(generateField)
-    }, [resetField,nColumn,nRow])
+        setMatrix(generateEmptyField)
+        setSimulationCount(0);
+    }, [resetField, nColumn, nRow])
 
 
+    // Start simulation
     useEffect(() => {
-        console.log("PLAY GENERATION") 
-        generation()
-    }, [playGeneration])
+        simulation()
+    }, [playSimulation])
 
 
-    console.log(matrix)
-
+    // operations during field simulation
     const operataions = [
-        [0,1],
-        [0,-1],
-        [1,-1],
-        [-1,1],
-        [1,1],
-        [-1,-1],
-        [1,0],
-        [-1,0],
+        [0, 1],
+        [0, -1],
+        [1, -1],
+        [-1, 1],
+        [1, 1],
+        [-1, -1],
+        [1, 0],
+        [-1, 0],
     ]
 
-    // metodo per generare board game of life conway
-    const generation = useCallback(() => {
-        //seeing if running,then return ( exit )
-        if(!runningRef.current) return 
+    // Board simulation
+    const simulation = useCallback(() => {
 
+        // Run simulation until runningRef is false
+        if (!runningRef.current) return
+        
+        setSimulationCount(prev => prev +1 ) 
+        
         //generate next field
         setMatrix(prev => {
-            console.log("simulating")
-            return produce(prev, matrixCopy => { 
-                for(let i = 0; i < nRow; i++){
-                    for(let j = 0; j < nColumn; j++) { 
+            return produce(prev, matrixCopy => {
+                for (let i = 0; i < nRow; i++) {
+                    for (let j = 0; j < nColumn; j++) {
                         //get number of neighbors of a cell
-                        let neighbors : number = 0;
-                        operataions.forEach(([x,y]) => { 
-                            const newI = i +x ; 
+                        let neighbors: number = 0;
+                        operataions.forEach(([x, y]) => {
+                            const newI = i + x;
                             const newJ = j + y;
-                            if(newI >= 0 && newI < nRow && newJ >=0 && newJ < nColumn){
+                            if (newI >= 0 && newI < nRow && newJ >= 0 && newJ < nColumn) {
                                 neighbors += prev[newI][newJ];
                             }
                         })
-                        if(neighbors< 2 || neighbors > 3) { 
+                        if (neighbors < 2 || neighbors > 3) {
                             matrixCopy[i][j] = 0;
-                        }else if(prev[i][j] === 0 && neighbors === 3) {
-                            matrixCopy[i][j] =1;
-
+                        } else if (prev[i][j] === 0 && neighbors === 3) {
+                            matrixCopy[i][j] = 1;
                         }
-                        //left check
-                        // if(matrixCopy[i][j] > 0 && matrixCopy[i][j-1]){
-                        //     neighbors += 1;
-                        // }
-                        // //right check
-                        // if(matrixCopy[i][j] < nColumn && matrixCopy[i][j+1]){
-                        //     neighbors += 1;
-                        // }
-                        // //top check
-                        // if(matrixCopy[i][j] > 0 && matrixCopy[i][j-1]){
-                        //     neighbors += 1;
-                        // }
-                        // //bottom check
-                        // if(matrixCopy[i][j] < nColumn && matrixCopy[i][j+1]){
-                        //     neighbors += 1;
-                        // }
                     }
                 }
             })
-        })
+        }) 
+        setTimeout(simulation, updateSpeedRef.current);
+    }, [])
 
-        setTimeout(generation , updateSpeedRef.current);
-    },[])
-
-
-    // metodo per ricevere coordinate x_y dell'oggetto cliccato per usarlo per aggiornare board 
+    // Update Field after cell pressed 
     const updateField = (x: number, y: number) => {
-        const newMatrix = produce(matrix,matrixCopy=>{
-            matrixCopy[x][y]  = matrix[x][y] ? 0 : 1;
+        const newMatrix = produce(matrix, matrixCopy => {
+            matrixCopy[x][y] = matrix[x][y] ? 0 : 1;
         })
         setMatrix(newMatrix)
-    }
-    const getCellCoordinate = (e: any) => {
-        let key: string = e.target.id
-        let numbers = key.split("_")
-        let x: number = parseInt(numbers[0], 10);
-        let y: number = parseInt(numbers[1], 10);
-        updateField(x,y);
     }
 
     return (
         <div className="Board">
+            <p>Generation : {simulationCount}</p>
             <div className="field" style={{ display: "grid", gridTemplateColumns: `repeat(${nColumn},20px)` }}>
                 {matrix.map((nRow, rowIndex) =>
                     nRow.map((nCol, colIndex) => (
-                        // <Box unique={`${rowIndex}_${colIndex}`}  boxPressed={(x) => boxPressed(x)} />
-                        <div
-                            id={`${rowIndex}_${colIndex}`}
-                            key={`${rowIndex}_${colIndex}`}
-                            className="box"
-                            style={{ backgroundColor: matrix[rowIndex][colIndex] ? "black" : "white" }}
-                            onClick={e => getCellCoordinate(e)}
+                        <Cell
+                            matrix={matrix}
+                            rowIndex={rowIndex}
+                            colIndex={colIndex}
+                            updateField={(x, y) => updateField(x, y)}
                         />
                     ))
                 )

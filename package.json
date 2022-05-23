@@ -1,4 +1,5 @@
 {
+  "homepage": ".",
   "name": "game-of-life-conway",
   "version": "0.1.0",
   "private": true,
