@@ -11,6 +11,15 @@ interface Props {
     playSimulation: Boolean;
 }
 
+/* 
+    Board will update when : 
+        - Stopping the simulation ( will empty the field)
+        - When clicking on a Cell to see the correct Frontend
+        - When simulation algorithm is running
+
+*/
+
+
 const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playSimulation, boardUpdateSpeed }) => {
 
     const generateEmptyField: () => number[][] = () => {
