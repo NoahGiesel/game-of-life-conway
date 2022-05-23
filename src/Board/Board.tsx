@@ -5,12 +5,13 @@ import produce from "immer"
 
 interface Props {
     nColumn: number;
+    boardUpdateSpeed: number;
     nRow: number;
     resetField: Boolean;
     playGeneration: Boolean;
 }
 
-const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playGeneration }) => {
+const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playGeneration, boardUpdateSpeed }) => {
 
     
     const generateField : () => number[][] = () => {
@@ -22,12 +23,14 @@ const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playGeneration }) =
     }
     const [matrix, setMatrix] = useState<number[][]>(generateField);
     const runningRef = useRef<Boolean>();
-    runningRef.current = playGeneration
+    const updateSpeedRef = useRef<number>();
 
+    runningRef.current = playGeneration
+    updateSpeedRef.current = boardUpdateSpeed
     useEffect(() => {
         console.log("RESETTING FIELD") 
         setMatrix(generateField)
-    }, [resetField])
+    }, [resetField,nColumn,nRow])
 
 
     useEffect(() => {
@@ -96,7 +99,7 @@ const Board: React.FC<Props> = ({ nColumn, nRow, resetField, playGeneration }) =
             })
         })
 
-        setTimeout(generation , 20);
+        setTimeout(generation , updateSpeedRef.current);
     },[])
 
 
