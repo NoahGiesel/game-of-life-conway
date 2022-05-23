@@ -1,13 +1,63 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0; 
+  width: 100vw; 
+  background-color: rgb(228, 228, 228);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* APP */
+
+.App{
+  width: 100%;
+  height: 100%;
 }
+
+.user__input { 
+  padding-top: 2vh ;
+}
+
+.user__input button { 
+  padding: 3vh 2vw;
+  margin: 0 1vw;
+  background-color: lightblue;
+  border: 1px solid black;
+}
+
+
+
+.user__input button:hover {
+  cursor: pointer;
+}
+
+.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+
+/* BOARD */
+
+.Board {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(175, 175, 175);
+  margin: 5vh auto;  
+}
+ 
+.Board .box { 
+  border: 1px solid rgb(221, 221, 221);
+  width: 20px ;
+  height: 20px; 
+  list-style-type: none; 
+  /* cursor: pointer; */
+}
+
+  
+.Board .box:hover {
+  background-color: rgba(157, 157, 157, 0.027) !important; 
+}
+ 
